@@ -52,6 +52,8 @@ module.exports = async function (context, req) {
         context.done()
     }
 
+    const calName = `ANU Timetable ${req.query.y} ${req.query.s}`
+
     const events = []
     for (let courseCode of courseCodes) {
         const course = timetable[courseCode] || timetable[courseCode+'_'+req.query.s]
@@ -116,7 +118,7 @@ https://programsandcourses.anu.edu.au/${year}/course/${courseCode}`
                             productId: 'anucssa/timetable',
                             uid: session.name+weeks.replace('\u2011','-'),
                             recurrenceRule: `FREQ=WEEKLY;BYDAY=${weekday};INTERVAL=1;COUNT=${repetitions}`,
-                            calName: `ANU Timetable ${year} ${req.query.s}`
+                            calName
                         })
                     }
                 }
@@ -160,7 +162,10 @@ BEGIN:VEVENT`)
 
             context.res = {
                 status: 200,
-                headers: {'Content-Type': 'text/calendar'},
+                headers: {
+                    'Content-Type': 'text/calendar',
+                    'Content-Disposition': `attachment; filename="${calName}.ics"`
+                },
                 body: value
             }
         } catch(err) {
